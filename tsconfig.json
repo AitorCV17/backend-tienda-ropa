@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* Básicos */
+    "target": "es2017",                   // Soporte ES2017
+    "module": "commonjs",                 // Módulo CommonJS (ideal para Node)
+    "outDir": "./dist",                   // Carpeta de salida
+    "rootDir": "./src",                   // Carpeta raíz del código fuente
+    
+    /* Módulos */
+    "esModuleInterop": true,              // Para usar imports con módulos CommonJS
+    "moduleResolution": "node",           // Resolución estándar para módulos node
+    
+    /* Reglas de seguridad */
+    "strict": true,                       // Modo estricto activado (recomendado)
+    "skipLibCheck": true,                 // Omite revisión de tipos en node_modules
+    "forceConsistentCasingInFileNames": true, // Respeta mayúsculas/minúsculas en importaciones
+    
+    /* Soporte para types personalizados */
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+
+    /* Tipos incluidos globalmente si los necesitaras (opcional) */
+    "types": ["node", "express"]
+  },
+  "include": [
+    "src/**/*"  // Incluye todo lo que esté en src, incluyendo tus types extendidos
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist"
+  ]
+}
