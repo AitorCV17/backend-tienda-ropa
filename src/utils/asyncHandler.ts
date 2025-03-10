@@ -7,7 +7,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
  * problemas de tipado y capturando errores automáticamente.
  */
 export function asyncHandler(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
 ): RequestHandler {
   return (req, res, next) => {
     fn(req, res, next).catch(next);

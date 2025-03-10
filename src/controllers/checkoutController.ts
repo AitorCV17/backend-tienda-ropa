@@ -1,4 +1,3 @@
-// src/controllers/checkoutController.ts
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { Carrito, CarritoItem } from '@prisma/client';
@@ -33,12 +32,18 @@ export const procesarCheckout = async (req: Request, res: Response) => {
     // Se incluye la relación "variante" y, dentro de ella, la información del producto e imágenes.
     const carrito = await prisma.carrito.findUnique({
       where: { id_usuario: userId },
-      include: { 
-        items: { 
-          include: { 
-            variante: { include: { producto: { include: { imagenes: true } } } }
-          } 
-        } 
+      include: {
+        items: {
+          include: {
+            variante: {
+              include: {
+                producto: {
+                  include: { imagenes: true }
+                }
+              }
+            }
+          }
+        }
       }
     }) as CarritoConItems | null;
 

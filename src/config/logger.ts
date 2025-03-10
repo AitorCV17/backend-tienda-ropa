@@ -1,3 +1,4 @@
+// Configuración del logger utilizando winston para registros estructurados en consola y archivos
 import { createLogger, transports, format } from 'winston';
 
 export const logger = createLogger({

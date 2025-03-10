@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { registrarUsuario, iniciarSesion, loginConGoogle } from '../controllers/authController';
+import {
+  registrarUsuario,
+  iniciarSesion,
+  loginConGoogle
+} from '../controllers/authController';
 
 const router = Router();
 
@@ -9,7 +13,9 @@ router.post(
   [
     body('nombre').trim().notEmpty().withMessage('El nombre es obligatorio'),
     body('correo').isEmail().withMessage('Correo inválido'),
-    body('contrasena').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+    body('contrasena')
+      .isLength({ min: 6 })
+      .withMessage('La contraseña debe tener al menos 6 caracteres')
   ],
   registrarUsuario
 );

@@ -1,5 +1,5 @@
-// src/types/express/index.d.ts
-import 'express'; // Asegura que se carguen las definiciones base de Express
+// Extiende las definiciones de Express para incluir la propiedad "usuario" en Request.
+import 'express';
 
 declare global {
   namespace Express {

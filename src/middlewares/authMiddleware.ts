@@ -1,4 +1,4 @@
-// src/middlewares/authMiddleware.ts
+// Middleware para verificar la existencia y validez del token JWT en la cabecera Authorization.
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -35,6 +35,5 @@ export const verificarToken = (
     res.status(401).json({ error: 'Token inválido o expirado' });
     return;
   }
-
   next();
 };

@@ -16,7 +16,9 @@ export const obtenerPedidosCliente = async (req: Request, res: Response) => {
 
 export const obtenerTodosPedidos = async (req: Request, res: Response) => {
   try {
-    const pedidos = await prisma.pedido.findMany({ include: { detalles: true } });
+    const pedidos = await prisma.pedido.findMany({
+      include: { detalles: true }
+    });
     res.json(pedidos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener pedidos' });

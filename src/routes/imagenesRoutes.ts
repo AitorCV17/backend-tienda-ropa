@@ -1,4 +1,3 @@
-// src/routes/imagenesRoutes.ts
 import { Router } from 'express';
 import { body } from 'express-validator';
 import {
@@ -8,7 +7,7 @@ import {
   crearImagen,
   actualizarImagen,
   eliminarImagen
-} from '../controllers/imagenController';
+} from '../controllers/imagenesController';
 import { verificarToken } from '../middlewares/authMiddleware';
 import { asyncHandler } from '../utils/asyncHandler';
 
@@ -16,7 +15,6 @@ const router = Router();
 
 router.use(verificarToken);
 
-// Ahora, cada ruta envuelve su controlador con asyncHandler:
 router.get('/', asyncHandler(obtenerImagenes));
 router.get('/:id', asyncHandler(obtenerImagen));
 router.get('/:id_producto/posicion/:posicion', asyncHandler(obtenerImagenPorPosicion));

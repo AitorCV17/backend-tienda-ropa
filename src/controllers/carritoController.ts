@@ -1,36 +1,53 @@
-// src/controllers/carritoController.ts
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/db';
 import { validationResult } from 'express-validator';
 
-// Obtener carrito del usuario (incluye información de la variante y sus imágenes)
-export const obtenerCarrito = async (req: Request, res: Response) => {
+export const obtenerCarrito = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const userId = req.usuario?.id;
   if (!userId) {
-    return res.status(401).json({ error: 'Autenticación requerida para obtener el carrito' });
+    res.status(401).json({ error: 'Autenticación requerida para obtener el carrito' });
+    return;
   }
   try {
     const carrito = await prisma.carrito.findUnique({
       where: { id_usuario: userId },
-      include: { 
-        items: { 
-          include: { 
-            variante: { include: { producto: { include: { imagenes: true } } } }
-          } 
-        } 
+      include: {
+        items: {
+          include: {
+            variante: {
+              include: {
+                producto: { include: { imagenes: true } }
+              }
+            }
+          }
+        }
       }
     });
     res.json(carrito);
+    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el carrito' });
+    next(error);
   }
 };
 
-// Agregar item al carrito (se espera id_producto_variante en lugar de id_producto)
-export const agregarItemCarrito = async (req: Request, res: Response) => {
+export const agregarItemCarrito = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    res.status(400).json({ errores: errores.array() });
+    return;
+  }
   const userId = req.usuario?.id;
   if (!userId) {
-    return res.status(401).json({ error: 'Autenticación requerida para agregar items al carrito' });
+    res.status(401).json({ error: 'Autenticación requerida para agregar items al carrito' });
+    return;
   }
   const { id_producto_variante, cantidad } = req.body;
   try {
@@ -41,56 +58,83 @@ export const agregarItemCarrito = async (req: Request, res: Response) => {
     const itemExistente = await prisma.carritoItem.findFirst({
       where: { id_carrito: carrito.id, id_producto_variante }
     });
-    let item;
     if (itemExistente) {
-      item = await prisma.carritoItem.update({
+      await prisma.carritoItem.update({
         where: { id: itemExistente.id },
         data: { cantidad: itemExistente.cantidad + cantidad }
       });
     } else {
-      item = await prisma.carritoItem.create({
+      await prisma.carritoItem.create({
         data: { id_carrito: carrito.id, id_producto_variante, cantidad }
       });
     }
-    res.json(item);
+    res.json({ message: 'Item agregado/actualizado en el carrito' });
+    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al agregar item al carrito' });
+    next(error);
   }
 };
 
-// Actualizar item del carrito
-export const actualizarItemCarrito = async (req: Request, res: Response) => {
+export const actualizarItemCarrito = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    res.status(400).json({ errores: errores.array() });
+    return;
+  }
   const itemId = parseInt(req.params.itemId, 10);
   const { cantidad } = req.body;
   try {
-    const item = await prisma.carritoItem.update({
+    await prisma.carritoItem.update({
       where: { id: itemId },
       data: { cantidad }
     });
-    res.json(item);
+    res.json({ message: 'Item actualizado' });
+    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar el item del carrito' });
+    next(error);
   }
 };
 
-// Eliminar item del carrito
-export const eliminarItemCarrito = async (req: Request, res: Response) => {
+export const eliminarItemCarrito = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    res.status(400).json({ errores: errores.array() });
+    return;
+  }
   const itemId = parseInt(req.params.itemId, 10);
   try {
     await prisma.carritoItem.delete({ where: { id: itemId } });
     res.json({ message: 'Item eliminado del carrito' });
+    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el item del carrito' });
+    next(error);
   }
 };
 
-// Sincronizar carrito (se espera un array de { id_producto_variante, cantidad })
-export const sincronizarCarrito = async (req: Request, res: Response) => {
-  const userId = req.usuario?.id;
-  const { items } = req.body; // Array de { id_producto_variante, cantidad }
-  if (!userId) {
-    return res.status(401).json({ error: 'Autenticación requerida para sincronizar el carrito' });
+export const sincronizarCarrito = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    res.status(400).json({ errores: errores.array() });
+    return;
   }
+  const userId = req.usuario?.id;
+  if (!userId) {
+    res.status(401).json({ error: 'Autenticación requerida para sincronizar el carrito' });
+    return;
+  }
+  const { items } = req.body;
   try {
     let carrito = await prisma.carrito.findUnique({ where: { id_usuario: userId } });
     if (!carrito) {
@@ -113,7 +157,8 @@ export const sincronizarCarrito = async (req: Request, res: Response) => {
       }
     }
     res.json({ message: 'Carrito sincronizado exitosamente' });
+    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al sincronizar el carrito' });
+    next(error);
   }
 };

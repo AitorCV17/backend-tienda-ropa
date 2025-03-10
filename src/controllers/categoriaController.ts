@@ -14,9 +14,12 @@ export const obtenerCategorias = async (req: Request, res: Response) => {
 export const crearCategoria = async (req: Request, res: Response) => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) return res.status(400).json({ errores: errores.array() });
+
   const { nombre, descripcion } = req.body;
   try {
-    const nuevaCategoria = await prisma.categoria.create({ data: { nombre, descripcion } });
+    const nuevaCategoria = await prisma.categoria.create({
+      data: { nombre, descripcion }
+    });
     res.status(201).json(nuevaCategoria);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear categoría' });

@@ -1,14 +1,13 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { body } from 'express-validator';
-import { 
-  obtenerDirecciones, 
-  crearDireccion, 
-  actualizarDireccion, 
-  eliminarDireccion 
+import {
+  obtenerDirecciones,
+  crearDireccion,
+  actualizarDireccion,
+  eliminarDireccion
 } from '../controllers/direccionController';
 import { verificarToken } from '../middlewares/authMiddleware';
 
-// Wrapper para manejar funciones asíncronas
 const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction): void => {
@@ -17,13 +16,10 @@ const asyncHandler = (
 
 const router = Router();
 
-// Aplica el middleware de autenticación a todas las rutas de direcciones
 router.use(verificarToken);
 
-// Ruta para obtener las direcciones del usuario
 router.get('/', asyncHandler(obtenerDirecciones));
 
-// Ruta para crear una nueva dirección
 router.post(
   '/',
   [
@@ -35,10 +31,25 @@ router.post(
   asyncHandler(crearDireccion)
 );
 
-// Ruta para actualizar una dirección existente
-router.put('/:id', asyncHandler(actualizarDireccion));
+router.put(
+  '/:id',
+  [
+    body('direccion')
+      .optional()
+      .notEmpty().withMessage('La dirección no puede estar vacía'),
+    body('ciudad')
+      .optional()
+      .notEmpty().withMessage('La ciudad no puede estar vacía'),
+    body('provincia')
+      .optional()
+      .notEmpty().withMessage('La provincia no puede estar vacía'),
+    body('codigo_postal')
+      .optional()
+      .notEmpty().withMessage('El código postal no puede estar vacío')
+  ],
+  asyncHandler(actualizarDireccion)
+);
 
-// Ruta para eliminar una dirección
 router.delete('/:id', asyncHandler(eliminarDireccion));
 
 export default router;

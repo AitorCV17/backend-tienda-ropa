@@ -1,3 +1,4 @@
+// Middleware para autorizar el acceso a rutas basado en roles de usuario.
 import { Request, Response, NextFunction } from 'express';
 
 export const autorizarRoles = (...roles: Array<'ADMIN' | 'CLIENTE'>) => {

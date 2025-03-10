@@ -1,10 +1,12 @@
-// src/controllers/varianteController.ts
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/db';
 import { validationResult } from 'express-validator';
 
-// Obtener todas las variantes; opcionalmente filtrar por id_producto
-export const obtenerVariantes = async (req: Request, res: Response) => {
+export const obtenerVariantes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const { id_producto } = req.query;
   try {
     const where = id_producto ? { id_producto: Number(id_producto) } : {};
@@ -14,29 +16,42 @@ export const obtenerVariantes = async (req: Request, res: Response) => {
     });
     res.json(variantes);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener variantes' });
+    next(error);
   }
 };
 
-// Obtener una variante por id
-export const obtenerVariante = async (req: Request, res: Response) => {
+export const obtenerVariante = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const id = Number(req.params.id);
   try {
     const variante = await prisma.productoVariante.findUnique({
       where: { id },
       include: { producto: true }
     });
-    if (!variante) return res.status(404).json({ error: 'Variante no encontrada' });
+    if (!variante) {
+      res.status(404).json({ error: 'Variante no encontrada' });
+      return;
+    }
     res.json(variante);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener la variante' });
+    next(error);
   }
 };
 
-// Crear variante
-export const crearVariante = async (req: Request, res: Response) => {
+export const crearVariante = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const errores = validationResult(req);
-  if (!errores.isEmpty()) return res.status(400).json({ errores: errores.array() });
+  if (!errores.isEmpty()) {
+    res.status(400).json({ errores: errores.array() });
+    return;
+  }
+
   const { id_producto, talla, color, precio, stock } = req.body;
   try {
     const nuevaVariante = await prisma.productoVariante.create({
@@ -50,18 +65,21 @@ export const crearVariante = async (req: Request, res: Response) => {
     });
     res.status(201).json(nuevaVariante);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear variante' });
+    next(error);
   }
 };
 
-// Actualizar variante
-export const actualizarVariante = async (req: Request, res: Response) => {
+export const actualizarVariante = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const id = Number(req.params.id);
   const { talla, color, precio, stock } = req.body;
   try {
     const varianteActualizada = await prisma.productoVariante.update({
       where: { id },
-      data: { 
+      data: {
         talla,
         color,
         precio: precio !== undefined ? Number(precio) : undefined,
@@ -70,17 +88,20 @@ export const actualizarVariante = async (req: Request, res: Response) => {
     });
     res.json(varianteActualizada);
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar la variante' });
+    next(error);
   }
 };
 
-// Eliminar variante
-export const eliminarVariante = async (req: Request, res: Response) => {
+export const eliminarVariante = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const id = Number(req.params.id);
   try {
     await prisma.productoVariante.delete({ where: { id } });
     res.json({ message: 'Variante eliminada' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar la variante' });
+    next(error);
   }
 };

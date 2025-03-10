@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { procesarCheckout } from '../controllers/checkoutController';
 import { verificarToken } from '../middlewares/authMiddleware';
+import { body } from 'express-validator';
 
-// Wrapper para manejar funciones asíncronas
 const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
 ) => (req: Request, res: Response, next: NextFunction): void => {
@@ -11,6 +11,17 @@ const asyncHandler = (
 
 const router = Router();
 
-router.post('/', verificarToken, asyncHandler(procesarCheckout));
+router.post(
+  '/',
+  verificarToken,
+  [
+    body('id_direccion')
+      .notEmpty().withMessage('id_direccion es obligatorio')
+      .isNumeric().withMessage('id_direccion debe ser numérico'),
+    body('metodoPago')
+      .notEmpty().withMessage('metodoPago es obligatorio')
+  ],
+  asyncHandler(procesarCheckout)
+);
 
 export default router;

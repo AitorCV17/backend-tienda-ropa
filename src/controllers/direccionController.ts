@@ -15,11 +15,18 @@ export const obtenerDirecciones = async (req: Request, res: Response) => {
 export const crearDireccion = async (req: Request, res: Response) => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) return res.status(400).json({ errores: errores.array() });
+
   const userId = req.usuario?.id;
   const { direccion, ciudad, provincia, codigo_postal } = req.body;
   try {
     const nuevaDireccion = await prisma.direccion.create({
-      data: { id_usuario: userId!, direccion, ciudad, provincia, codigo_postal }
+      data: {
+        id_usuario: userId!,
+        direccion,
+        ciudad,
+        provincia,
+        codigo_postal
+      }
     });
     res.status(201).json(nuevaDireccion);
   } catch (error) {
@@ -30,8 +37,10 @@ export const crearDireccion = async (req: Request, res: Response) => {
 export const actualizarDireccion = async (req: Request, res: Response) => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) return res.status(400).json({ errores: errores.array() });
+
   const direccionId = parseInt(req.params.id, 10);
   const { direccion, ciudad, provincia, codigo_postal } = req.body;
+
   try {
     const direccionActualizada = await prisma.direccion.update({
       where: { id: direccionId },

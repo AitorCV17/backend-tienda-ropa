@@ -10,9 +10,19 @@ router.use(verificarToken);
 router.put(
   '/perfil',
   [
-    body('nombre').optional().trim().notEmpty().withMessage('El nombre no puede estar vacío'),
-    body('correo').optional().isEmail().withMessage('Correo inválido'),
-    body('contrasena').optional().isLength({ min: 6 }).withMessage('Mínimo 6 caracteres')
+    body('nombre')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('El nombre no puede estar vacío'),
+    body('correo')
+      .optional()
+      .isEmail()
+      .withMessage('Correo inválido'),
+    body('contrasena')
+      .optional()
+      .isLength({ min: 6 })
+      .withMessage('Mínimo 6 caracteres')
   ],
   actualizarPerfil
 );

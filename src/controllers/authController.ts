@@ -1,6 +1,4 @@
-// src/controllers/authController.ts
-
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -10,8 +8,11 @@ import { loginConGoogleService } from '../services/googleAuthService';
 
 dotenv.config();
 
-// Registro de usuario (tradicional)
-export const registrarUsuario = async (req: Request, res: Response): Promise<void> => {
+export const registrarUsuario = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) {
     res.status(400).json({ errores: errores.array() });
@@ -30,15 +31,16 @@ export const registrarUsuario = async (req: Request, res: Response): Promise<voi
       data: { nombre, correo, contrasena: hashContrasena, rol: 'CLIENTE' }
     });
     res.status(201).json({ message: 'Usuario registrado exitosamente', usuario });
-    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al registrar el usuario' });
-    return;
+    next(error);
   }
 };
 
-// Login tradicional (JWT)
-export const iniciarSesion = async (req: Request, res: Response): Promise<void> => {
+export const iniciarSesion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) {
     res.status(400).json({ errores: errores.array() });
@@ -65,15 +67,16 @@ export const iniciarSesion = async (req: Request, res: Response): Promise<void> 
     const accessToken = jwt.sign(payload, secret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, secret, { expiresIn: '7d' });
     res.json({ accessToken, refreshToken });
-    return;
   } catch (error) {
-    res.status(500).json({ error: 'Error al iniciar sesión' });
-    return;
+    next(error);
   }
 };
 
-// Login con Google OAuth2
-export const loginConGoogle = async (req: Request, res: Response): Promise<void> => {
+export const loginConGoogle = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const { tokenGoogle } = req.body;
   if (!tokenGoogle) {
     res.status(400).json({ error: 'tokenGoogle es requerido' });
@@ -82,9 +85,7 @@ export const loginConGoogle = async (req: Request, res: Response): Promise<void>
   try {
     const { accessToken, refreshToken, usuario } = await loginConGoogleService(tokenGoogle);
     res.json({ accessToken, refreshToken, usuario });
-    return;
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message || 'Error en login con Google' });
-    return;
+    next(error);
   }
 };
