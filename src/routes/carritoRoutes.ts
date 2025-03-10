@@ -1,4 +1,5 @@
-import { Router, Request, Response, NextFunction } from 'express';
+// src/routes/carritoRoutes.ts
+import { Router } from 'express';
 import { 
   obtenerCarrito, 
   agregarItemCarrito, 
@@ -7,13 +8,7 @@ import {
   sincronizarCarrito 
 } from '../controllers/carritoController';
 import { verificarToken } from '../middlewares/authMiddleware';
-
-// Wrapper para manejar errores en funciones asíncronas
-const asyncHandler = (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
-) => (req: Request, res: Response, next: NextFunction): void => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
+import { asyncHandler } from '../utils/asyncHandler';
 
 const router = Router();
 
