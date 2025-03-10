@@ -1,3 +1,4 @@
+// src/controllers/productoController.ts
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 
@@ -13,7 +14,15 @@ export const obtenerProductos = async (req: Request, res: Response) => {
       where.id_categoria = Number(categoria);
     }
     const [productos, total] = await Promise.all([
-      prisma.producto.findMany({ where, skip, take: Number(limit) }),
+      prisma.producto.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        include: { 
+          imagenes: true,
+          variantes: true
+        }
+      }),
       prisma.producto.count({ where })
     ]);
     res.json({ productos, total, page: Number(page), limit: Number(limit) });
